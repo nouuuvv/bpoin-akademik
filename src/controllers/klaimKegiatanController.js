@@ -17,8 +17,10 @@ export const createKlaim = async (req, res) => {
       tanggal_pelaksanaan,
       mentor,
       narasumber,
-      bukti_kegiatan,
     } = req.body;
+
+    // 🔹 Ambil file bukti (kalau ada)
+    const bukti_kegiatan = req.file ? req.file.filename : null;
 
     if (
       !nim ||
@@ -35,7 +37,6 @@ export const createKlaim = async (req, res) => {
       return res.status(400).json({ message: "Semua field wajib diisi." });
     }
 
-    // 🔍 cari bobot poin dari master
     const master = await MasterPoin.findOne({
       where: { kode_keg: kode_kegiatan },
     });
@@ -44,14 +45,12 @@ export const createKlaim = async (req, res) => {
         .status(400)
         .json({ message: "Kode kegiatan tidak ditemukan di Master Poin." });
 
-    // 🔍 validasi mahasiswa
     const mahasiswa = await Mahasiswa.findOne({ where: { nim } });
     if (!mahasiswa)
       return res
         .status(400)
         .json({ message: "Mahasiswa dengan NIM tersebut tidak ditemukan." });
 
-    // 🚀 create klaim baru
     const data = await KlaimKegiatan.create({
       nim,
       nama_mhs,
@@ -64,9 +63,9 @@ export const createKlaim = async (req, res) => {
       tanggal_pelaksanaan,
       mentor,
       narasumber,
-      bukti_kegiatan,
+      bukti_kegiatan, // <── nama file tersimpan di DB
       poin: master.bobot_poin,
-      status: "Diajukan", // default
+      status: "Diajukan",
     });
 
     res.status(201).json({
@@ -112,7 +111,6 @@ export const getAllKlaim = async (req, res) => {
   }
 };
 
-
 // ✅ READ BY ID
 export const getKlaimById = async (req, res) => {
   try {
@@ -136,17 +134,19 @@ export const getKlaimById = async (req, res) => {
   }
 };
 
-// ✅ UPDATE (untuk mahasiswa edit klaim mereka)
 export const updateKlaim = async (req, res) => {
   try {
     const { id } = req.params;
     const updates = req.body;
 
+    if (req.file) {
+      updates.bukti_kegiatan = req.file.filename;
+    }
+
     const klaim = await KlaimKegiatan.findByPk(id);
     if (!klaim)
       return res.status(404).json({ message: "Data tidak ditemukan." });
 
-    // ❌ larang ubah status langsung (kecuali admin)
     if ("status" in updates) delete updates.status;
 
     await klaim.update(updates);
@@ -156,6 +156,7 @@ export const updateKlaim = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 // ✅ APPROVAL KHUSUS ADMIN
 export const approveKlaim = async (req, res) => {

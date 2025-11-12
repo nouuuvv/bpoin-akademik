@@ -6,43 +6,40 @@ const JWT_SECRET = process.env.JWT_SECRET || "please-change-this";
 
 // 🔹 Middleware utama untuk validasi token
 export const authMiddleware = async (req, res, next) => {
-  const auth = req.headers.authorization;
-  if (!auth || !auth.startsWith("Bearer ")) {
-    return res.status(401).json({
-      success: false,
-      message: "Harus login dulu untuk mengakses resource ini.",
-    });
+  let token;
+
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer ")
+  ) {
+    token = req.headers.authorization.split(" ")[1];
+  } else if (req.cookies.token) {
+    token = req.cookies.token;
   }
 
-  const token = auth.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({ message: "Harus login dulu." });
+  }
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    const user = await User.findByPk(decoded.id);
 
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "Akun tidak ditemukan atau sudah dihapus.",
-      });
+    // validasi user role dll
+    req.user = await User.findByPk(decoded.id);
+
+    if (!req.user) {
+      return res.status(404).json({ message: "User tidak ditemukan." });
     }
-
-    req.user = {
-      id: user.id,
-      role: user.role,
-      nim: user.nim,
-      nip: user.nip,
-      nama: user.nama,
-    };
 
     next();
   } catch (err) {
-    return res.status(403).json({
-      success: false,
-      message: "Token tidak valid atau sudah kedaluwarsa.",
-    });
+    return res
+      .status(403)
+      .json({ message: "Token tidak valid atau kadaluarsa." });
   }
 };
+
+
 
 // 🔹 Middleware khusus admin
 export const adminOnly = (req, res, next) => {

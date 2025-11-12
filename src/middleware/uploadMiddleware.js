@@ -1,7 +1,6 @@
 import multer from "multer";
 import path from "path";
 
-// Konfigurasi tempat penyimpanan
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/");
@@ -12,11 +11,16 @@ const storage = multer.diskStorage({
   },
 });
 
-// Filter file hanya gambar
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+  const allowedTypes = [
+    "image/jpeg",
+    "image/png",
+    "image/jpg",
+    "image/webp",
+    "application/pdf",
+  ];
   if (!allowedTypes.includes(file.mimetype)) {
-    cb(new Error("Tipe file tidak didukung"), false);
+    cb(new Error("Tipe file tidak didukung (hanya webp,jpg, png, pdf)"), false);
   } else {
     cb(null, true);
   }
@@ -25,7 +29,7 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 2 * 1024 * 1024 }, // Maks 2 MB
+  limits: { fileSize: 5 * 1024 * 1024 }, // Maks 5 MB
 });
 
 export default upload;

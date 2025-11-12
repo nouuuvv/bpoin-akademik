@@ -13,7 +13,7 @@ const router = express.Router();
 
 // Semua khusus admin
 router.get("/", authMiddleware, adminOnly, getAllMahasiswa);
-router.get("/:id", authMiddleware, adminOnly, getMahasiswaById);
+router.get("/:id", authMiddleware, getMahasiswaById);
 router.post(
   "/",
   authMiddleware,

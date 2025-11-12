@@ -3,9 +3,9 @@ import MasterPoin from "../models/masterpoinModel.js";
 // 🔹 CREATE
 export const createMasterPoin = async (req, res) => {
   try {
-    const { kode_keg, jenis_kegiatan, deskripsi, bobot_poin } = req.body;
+    const { kode_keg, jenis_kegiatan, posisi, bobot_poin } = req.body;
 
-    if (!kode_keg || !jenis_kegiatan || !deskripsi || !bobot_poin) {
+    if (!kode_keg || !jenis_kegiatan || !posisi || !bobot_poin) {
       return res.status(400).json({ message: "Semua field wajib diisi." });
     }
 
@@ -19,7 +19,7 @@ export const createMasterPoin = async (req, res) => {
     const newData = await MasterPoin.create({
       kode_keg,
       jenis_kegiatan,
-      deskripsi,
+      posisi,
       bobot_poin,
     });
 
@@ -59,13 +59,13 @@ export const getMasterPoinById = async (req, res) => {
 export const updateMasterPoin = async (req, res) => {
   try {
     const { id } = req.params;
-    const { kode_keg, jenis_kegiatan, deskripsi, bobot_poin } = req.body;
+    const { kode_keg, jenis_kegiatan, posisi, bobot_poin } = req.body;
 
     const data = await MasterPoin.findByPk(id);
     if (!data)
       return res.status(404).json({ message: "Data tidak ditemukan." });
 
-    await data.update({ kode_keg, jenis_kegiatan, deskripsi, bobot_poin });
+    await data.update({ kode_keg, jenis_kegiatan, posisi, bobot_poin });
     res.json({ message: "Data berhasil diperbarui.", data });
   } catch (error) {
     res.status(500).json({ message: error.message });

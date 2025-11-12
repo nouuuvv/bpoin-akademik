@@ -16,14 +16,21 @@ const Mahasiswa = sequelize.define("Mahasiswa", {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  prodi: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
   angkatan: {
     type: DataTypes.STRING,
   },
   target_poin: {
     type: DataTypes.INTEGER,
+    defaultValue: 50,
   },
   total_poin: {
     type: DataTypes.INTEGER,
+    allowNull: true,
+    defaultValue: 0,
   },
   id_jur: {
     type: DataTypes.STRING,

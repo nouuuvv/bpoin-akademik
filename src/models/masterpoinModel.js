@@ -26,7 +26,7 @@ const MasterPoin = sequelize.define("MasterPoin", {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  deskripsi: {
+  posisi: {
     type: DataTypes.TEXT,
     allowNull: false,
   },

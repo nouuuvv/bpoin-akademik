@@ -11,8 +11,6 @@ const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "1d";
 export const login = async (req, res) => {
   try {
     const { identifier, password } = req.body;
-    // identifier bisa NIM (mahasiswa) atau NIP (admin)
-
     if (!identifier || !password) {
       return res
         .status(400)
@@ -23,7 +21,6 @@ export const login = async (req, res) => {
       where: {
         [Op.or]: [{ nim: identifier }, { nip: identifier }],
       },
-
       include: { model: Mahasiswa },
     });
 
@@ -45,9 +42,16 @@ export const login = async (req, res) => {
       { expiresIn: JWT_EXPIRES_IN }
     );
 
+    // Set token sebagai httpOnly cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 hari
+      sameSite: "lax",
+    });
+
     res.json({
       message: "Login berhasil.",
-      token,
       role: user.role,
       user: {
         id: user.id,
@@ -61,7 +65,7 @@ export const login = async (req, res) => {
     console.error("Login error:", err);
     res.status(500).json({ message: err.message });
   }
-};
+};  
 
 // 🔹 GET PROFILE (berdasarkan token)
 export const getProfile = async (req, res) => {
@@ -115,11 +119,17 @@ export const changePassword = async (req, res) => {
 // 🔹 LOGOUT
 export const logout = async (req, res) => {
   try {
-    // Hapus cookie token
-    res.clearCookie("token", { httpOnly: true, sameSite: "strict" });
-    return res.status(200).json({ message: "Logout berhasil." });
+    // Kalau nanti pakai cookie jwt, ini kepake
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+    });
+
+    return res.status(200).json({ message: "Logout berhasil (JWT removed)." });
   } catch (err) {
     console.error("Logout error:", err);
     return res.status(500).json({ message: "Gagal logout." });
   }
 };
+

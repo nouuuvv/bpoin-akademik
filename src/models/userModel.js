@@ -18,11 +18,13 @@ const User = sequelize.define(
         model: Mahasiswa,
         key: "nim",
       },
+      index: true,
     },
     nip: {
       type: DataTypes.STRING,
       allowNull: true, // hanya untuk admin
       unique: true,
+      index: true,
     },
     nama: {
       type: DataTypes.STRING,

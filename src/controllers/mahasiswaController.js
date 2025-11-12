@@ -1,7 +1,8 @@
 import Mahasiswa from "../models/mahasiswaModel.js";
 import User from "../models/userModel.js";
 import bcrypt from "bcryptjs";
-
+import fs from "fs";
+import path from "path";
 
 // ✅ Get all mahasiswa
 export const getAllMahasiswa = async (req, res) => {
@@ -71,18 +72,41 @@ export const updateMahasiswa = async (req, res) => {
     const data = await Mahasiswa.findByPk(req.params.id);
     if (!data) return res.status(404).json({ message: "Mahasiswa not found" });
 
-    const updates = req.body;
+    // ambil body dulu
+    let updates = req.body;
 
+    // Jika ada foto baru
     if (req.file) {
-      updates.foto = `/uploads/${req.file.filename}`;
+      const newFoto = `/uploads/${req.file.filename}`;
+      const oldFoto = data.foto;
+
+      updates.foto = newFoto;
+
+      // hapus foto lama kalo ada
+      if (oldFoto) {
+        const filePath = path.join("public", oldFoto.replace("/uploads/", ""));
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
+      }
+    } else {
+      // ❗ Kalau gak upload foto, jangan ubah field foto
+      updates.foto = data.foto;
     }
 
+    // update data
     await data.update(updates);
-    res.json({ message: "Mahasiswa updated", data });
+
+    // ambil ulang biar fresh
+    const updatedMahasiswa = await Mahasiswa.findByPk(req.params.id);
+
+    res.json(updatedMahasiswa);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 };
+
+
 
 
 // ✅ Delete mahasiswa
