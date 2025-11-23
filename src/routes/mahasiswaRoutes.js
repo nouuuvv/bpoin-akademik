@@ -5,6 +5,7 @@ import {
   createMahasiswa,
   updateMahasiswa,
   deleteMahasiswa,
+  getMahasiswaMe,
 } from "../controllers/mahasiswaController.js";
 import { authMiddleware, adminOnly } from "../middleware/authMiddleware.js";
 import upload from "../middleware/uploadMiddleware.js";
@@ -13,6 +14,7 @@ const router = express.Router();
 
 // Semua khusus admin
 router.get("/", authMiddleware, adminOnly, getAllMahasiswa);
+router.get("/me", authMiddleware, getMahasiswaMe);
 router.get("/:id", authMiddleware, getMahasiswaById);
 router.post(
   "/",

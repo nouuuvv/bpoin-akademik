@@ -14,6 +14,48 @@ export const getAllMahasiswa = async (req, res) => {
   }
 };
 
+// ✅ Get Biodata mahasiswa
+export const getMahasiswaMe = async (req, res) => {
+  try {
+    const { nim, role } = req.user;
+
+    if (role !== "mahasiswa") {
+      return res
+        .status(403)
+        .json({ message: "Hanya mahasiswa yang bisa akses endpoint ini." });
+    }
+
+    const mhs = await Mahasiswa.findOne({ where: { nim } });
+
+    if (!mhs) {
+      return res.status(404).json({ message: "Mahasiswa tidak ditemukan." });
+    }
+
+    // Transform ke struktur frontend
+    const result = {
+      nim: mhs.nim,
+      name: mhs.nama_mhs,
+      prodi: mhs.prodi,
+      angkatan: mhs.angkatan,
+      tanggalLahir: mhs.tgl_lahir,
+      alamat: mhs.alamat,
+      phone: mhs.tlp_saya,
+      email: mhs.email,
+      pekerjaan: mhs.pekerjaan,
+      asalSekolah: mhs.asal_sekolah,
+      tahunLulus: mhs.thn_lulus,
+      status: mhs.status,
+      foto: mhs.foto,
+      targetPoin: mhs.target_poin,
+      totalPoin: mhs.total_poin,
+    };
+
+    return res.json({ message: "OK", data: result });
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+};
+
 // ✅ Get mahasiswa by ID
 export const getMahasiswaById = async (req, res) => {
   try {

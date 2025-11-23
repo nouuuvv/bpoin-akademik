@@ -55,12 +55,15 @@ export const login = async (req, res) => {
       role: user.role,
       user: {
         id: user.id,
-        nama: user.nama || user.Mahasiswa?.nama,
         nim: user.nim,
         nip: user.nip,
+        nama: user.nama || user.Mahasiswa?.nama_mhs,
         email: user.email || user.Mahasiswa?.email,
+        foto: user.Mahasiswa?.foto,
+        total_poin: user.Mahasiswa?.total_poin,
       },
     });
+
   } catch (err) {
     console.error("Login error:", err);
     res.status(500).json({ message: err.message });
@@ -77,7 +80,7 @@ export const getProfile = async (req, res) => {
       data = await Mahasiswa.findOne({ where: { nim } });
     } else {
       data = await User.findOne({ where: { nip } });
-    }
+    }   
 
     if (!data)
       return res.status(404).json({ message: "Data tidak ditemukan." });
