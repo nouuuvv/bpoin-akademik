@@ -1,3 +1,4 @@
+// src/routes/klaimKegiatanRoutes.js
 import express from "express";
 import {
   createKlaim,
@@ -16,16 +17,18 @@ import upload from "../middleware/uploadMiddleware.js";
 
 const router = express.Router();
 
-// 🧑‍🎓 Mahasiswa
+// semua harus auth dulu
 router.get("/", authMiddleware, getAllKlaim);
 router.get("/:id", authMiddleware, getKlaimById);
+
+// Mahasiswa: create & edit revisi (upload bukti pdf/image)
 router.post(
   "/",
   authMiddleware,
   mahasiswaOnly,
   upload.single("bukti_kegiatan"),
   createKlaim
-); // <─ tambahin upload
+);
 router.put(
   "/:id",
   authMiddleware,
@@ -34,7 +37,7 @@ router.put(
   updateKlaim
 );
 
-// 🧑‍💼 Admin
+// Admin: patch status & delete
 router.patch("/:id/status", authMiddleware, adminOnly, approveKlaim);
 router.delete("/:id", authMiddleware, adminOnly, deleteKlaim);
 

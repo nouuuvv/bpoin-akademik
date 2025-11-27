@@ -30,6 +30,18 @@ export const login = async (req, res) => {
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(401).json({ message: "Password salah." });
 
+    let mahasiswaId = null;
+
+    // jika role mahasiswa, pastikan kita punya id_mhs
+    if (user.role === "mahasiswa") {
+      if (user.Mahasiswa && user.Mahasiswa.id_mhs) {
+        mahasiswaId = user.Mahasiswa.id_mhs;
+      } else {
+        const m = await Mahasiswa.findOne({ where: { nim: user.nim } });
+        mahasiswaId = m ? m.id_mhs : null;
+      }
+    }
+
     // Buat token JWT
     const token = jwt.sign(
       {
@@ -37,6 +49,7 @@ export const login = async (req, res) => {
         role: user.role,
         nim: user.nim,
         nip: user.nip,
+        mahasiswa_id: mahasiswaId,
       },
       JWT_SECRET,
       { expiresIn: JWT_EXPIRES_IN }
@@ -57,10 +70,10 @@ export const login = async (req, res) => {
         id: user.id,
         nim: user.nim,
         nip: user.nip,
-        nama: user.nama || user.Mahasiswa?.nama_mhs,
-        email: user.email || user.Mahasiswa?.email,
-        foto: user.Mahasiswa?.foto,
-        total_poin: user.Mahasiswa?.total_poin,
+        nama: user.nama || user.Mahasiswa?.nama_mhs || "",
+        email: user.email || user.Mahasiswa?.email || "",
+        foto: user.Mahasiswa?.foto || null,
+        total_poin: user.Mahasiswa?.total_poin || 0,
       },
     });
 

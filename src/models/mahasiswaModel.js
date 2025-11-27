@@ -32,9 +32,6 @@ const Mahasiswa = sequelize.define("Mahasiswa", {
     allowNull: true,
     defaultValue: 0,
   },
-  id_jur: {
-    type: DataTypes.STRING,
-  },
   tgl_lahir: {
     type: DataTypes.DATEONLY,
   },

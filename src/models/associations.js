@@ -1,17 +1,32 @@
-// src/models/associations.js
 import Mahasiswa from "./mahasiswaModel.js";
 import User from "./userModel.js";
+import MasterPoin from "./masterPoinModel.js";
+import KlaimKegiatan from "./klaimKegiatanModel.js";
 
-// Relasi antara Mahasiswa dan User
-Mahasiswa.hasOne(User, {
-  foreignKey: "nim",
-  sourceKey: "nim",
-  onDelete: "CASCADE",
+// ========== USER <-> MAHASISWA ==========
+Mahasiswa.hasOne(User, { foreignKey: "nim", sourceKey: "nim" });
+User.belongsTo(Mahasiswa, { foreignKey: "nim", targetKey: "nim" });
+
+// ========== MAHASISWA <-> KLAIM ==========
+Mahasiswa.hasMany(KlaimKegiatan, {
+  foreignKey: "mahasiswa_id",
+  as: "klaim",
 });
 
-User.belongsTo(Mahasiswa, {
-  foreignKey: "nim",
-  targetKey: "nim",
+KlaimKegiatan.belongsTo(Mahasiswa, {
+  foreignKey: "mahasiswa_id",
+  as: "mahasiswa",
 });
 
-export { Mahasiswa, User };
+// ========== MASTERPOIN <-> KLAIM ==========
+MasterPoin.hasMany(KlaimKegiatan, {
+  foreignKey: "masterpoin_id",
+  as: "klaimMaster",
+});
+
+KlaimKegiatan.belongsTo(MasterPoin, {
+  foreignKey: "masterpoin_id",
+  as: "masterPoin",
+});
+
+export { Mahasiswa, User, MasterPoin, KlaimKegiatan };

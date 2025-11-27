@@ -3,8 +3,8 @@ import dotenv from "dotenv";
 import cors from "cors";
 import sequelize from "./config/db.js";
 import bcrypt from "bcryptjs";
-import User from "./models/userModel.js";
 import "./models/associations.js"; 
+import User from "./models/userModel.js";
 import cookieParser from "cookie-parser";
 
 // Import routes
@@ -44,15 +44,14 @@ app.use("/uploads", express.static("uploads"));
     console.log("✅ Database connected");
     const isProduction = process.env.NODE_ENV === "production";
 
-    // Gunakan `alter` hanya kalau di dev lokal
+    // safer: jangan auto alter di startup
     await sequelize.sync({
-      alter: !isProduction,
+      alter: false,
       force: false,
     });
     console.log(
-      `✅ Database synced (${isProduction ? "production" : "development"} mode)`
+      "✅ Database synced (no auto-alter). Jika perlu perubahan skema, gunakan migration manual."
     );
-
 
     const adminExist = await User.findOne({ where: { role: "admin" } });
     if (!adminExist) {
